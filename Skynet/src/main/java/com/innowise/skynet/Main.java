@@ -8,17 +8,21 @@ import com.innowise.skynet.models.PartsFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
         BlockingQueue<Parts> sharedStorage = new LinkedBlockingQueue<Parts>();
 
-        PartsFactory partsFactory = new PartsFactory();
-        Factory factory = new Factory(sharedStorage);
+        CyclicBarrier day = new CyclicBarrier(3);
+        CyclicBarrier night = new CyclicBarrier(3);
 
-        Faction worldFaction = new Faction("World", sharedStorage, factory);
-        Faction wednesdayFaction = new Faction("Wednesday", sharedStorage, factory);
+        PartsFactory partsFactory = new PartsFactory();
+        Factory factory = new Factory(sharedStorage, day, night);
+
+        Faction worldFaction = new Faction("World", sharedStorage, day, night);
+        Faction wednesdayFaction = new Faction("Wednesday", sharedStorage, day, night);
 
         factory.start();
         worldFaction.start();

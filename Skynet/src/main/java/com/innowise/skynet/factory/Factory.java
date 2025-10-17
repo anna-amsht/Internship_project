@@ -4,18 +4,19 @@ import com.innowise.skynet.models.Parts;
 import com.innowise.skynet.models.PartsFactory;
 
 import java.util.List;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.*;
 
 public class Factory extends Thread{
     private final BlockingQueue<Parts> sharedStorage;
     private volatile boolean running = true;
-    private CountDownLatch dayLatch;
+    private CyclicBarrier day;
+    private CyclicBarrier night;
     private final Object lock = new Object();
 
-    public Factory(BlockingQueue<Parts> sharedStorage) {
+    public Factory(BlockingQueue<Parts> sharedStorage, CyclicBarrier day, CyclicBarrier night) {
         this.sharedStorage = sharedStorage;
+        this.day = day;
+        this.night = night;
     }
 
     @Override
@@ -23,9 +24,14 @@ public class Factory extends Thread{
         int day = 1;
         while (running && day <= 100) {
 
-            synchronized (lock) {
-                dayLatch = new CountDownLatch(2);
+            try {
+                this.day.await();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } catch (BrokenBarrierException e) {
+               return;
             }
+
             List<Parts> newParts = PartsFactory.generateParts();
 
             for (Parts p : newParts) {
@@ -36,14 +42,13 @@ public class Factory extends Thread{
                 }
             }
             System.out.println("Factory finished day " + day);
-            CountDownLatch currentLatch;
-            synchronized (lock) {
-                currentLatch = dayLatch;
-            }
+
             try {
-                currentLatch.await();
+                night.await();
             } catch (InterruptedException e) {
-              throw new RuntimeException(e);
+                Thread.currentThread().interrupt();
+            } catch (BrokenBarrierException e) {
+                return;
             }
             day++;
 
@@ -54,15 +59,5 @@ public class Factory extends Thread{
         running = false;
         interrupt();
     }
-    public void finishDay() {
-        if (dayLatch != null) {
-            dayLatch.countDown();
-        }
-    }
 
-    public CountDownLatch getCurrentLatch() {
-        synchronized (lock) {
-            return dayLatch;
-        }
-    }
 }

@@ -6,41 +6,38 @@ import com.innowise.skynet.models.RobotBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class Faction extends Thread{
     private final String name;
-    private final Factory factory;
     private final BlockingQueue<Parts> sharedStorage;
     private final RobotBuilder robotBuilder;
     private final List<Robot> robots = new ArrayList<>();
     private volatile boolean running = true;
     private static final int MAX_COUNT_PER_NIGHT = 5;
-    private CountDownLatch lastProcessedLatch = null;
+    private final CyclicBarrier day;
+    private final CyclicBarrier night;
 
-    public Faction(String name, BlockingQueue<Parts> sharedStorage, Factory factory) {
+
+    public Faction(String name, BlockingQueue<Parts> sharedStorage, CyclicBarrier day, CyclicBarrier night) {
         this.name = name;
         this.sharedStorage = sharedStorage;
-        this.factory = factory;
+        this.day = day;
+        this.night = night;
         this.robotBuilder = new RobotBuilder(name);
     }
 
     @Override
     public void run() {
         while (running) {
-
-            CountDownLatch currentLatch = factory.getCurrentLatch();
-            if (currentLatch == null || currentLatch == lastProcessedLatch) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    return;
-                }
-                continue;
+            try {
+                day.await();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } catch (BrokenBarrierException e) {
+                return;
             }
+
 
             List<Parts> takenParts = new ArrayList<>();
 
@@ -69,9 +66,12 @@ public class Faction extends Thread{
 
             System.out.println(name + " finished work for the day");
 
-            lastProcessedLatch = currentLatch;
-            if (factory != null) {
-                factory.finishDay();
+            try {
+                night.await();
+            } catch (InterruptedException e) {
+               Thread.currentThread().interrupt();
+            } catch (BrokenBarrierException e) {
+                return;
             }
         }
     }
