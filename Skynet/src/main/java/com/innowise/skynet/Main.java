@@ -1,42 +1,45 @@
-import factory.Faction;
-import factory.Factory;
-import models.Parts;
-import models.PartsFactory;
+package com.innowise.skynet;
+
+import com.innowise.skynet.factory.Faction;
+import com.innowise.skynet.factory.Factory;
+import com.innowise.skynet.models.Parts;
+import com.innowise.skynet.models.PartsFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
-        List<Parts> sharedStorage = new ArrayList<>();
+        BlockingQueue<Parts> sharedStorage = new LinkedBlockingQueue<Parts>();
 
         PartsFactory partsFactory = new PartsFactory();
         Factory factory = new Factory(sharedStorage, partsFactory);
 
-        Faction worldFaction = new Faction("World", sharedStorage);
-        Faction wednesdayFaction = new Faction("Wednesday", sharedStorage);
+        Faction worldFaction = new Faction("World", sharedStorage, factory);
+        Faction wednesdayFaction = new Faction("Wednesday", sharedStorage, factory);
 
         factory.start();
         worldFaction.start();
         wednesdayFaction.start();
 
-        for (int day = 1; day <= 100; day++) {
-            Thread.sleep(100);
-            System.out.println("Day " + day + " completed");
-        }
+        factory.join();
 
-        factory.stopFactory();
         worldFaction.stopFaction();
         wednesdayFaction.stopFaction();
 
-        factory.join();
         worldFaction.join();
         wednesdayFaction.join();
+
+        System.out.println("World Faction " + worldFaction.getRobotCount());
+        System.out.println("Wednesday Faction " + wednesdayFaction.getRobotCount());
+
 
         int worldRobots = worldFaction.getRobotCount();
         int wednesdayRobots = wednesdayFaction.getRobotCount();
 
-        System.out.println("\n=== SIMULATION RESULTS ===");
+        System.out.println("\n Results:\n");
         System.out.println("World faction robots: " + worldRobots);
         System.out.println("Wednesday faction robots: " + wednesdayRobots);
 

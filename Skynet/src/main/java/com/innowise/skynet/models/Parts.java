@@ -1,4 +1,4 @@
-package models;
+package com.innowise.skynet.models;
 
 public enum Parts {
     HEAD,

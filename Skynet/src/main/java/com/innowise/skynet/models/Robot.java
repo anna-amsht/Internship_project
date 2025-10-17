@@ -1,4 +1,4 @@
-package models;
+package com.innowise.skynet.models;
 
 public class Robot {
     private final int id;

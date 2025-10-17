@@ -1,4 +1,4 @@
-package models;
+package com.innowise.skynet.models;
 
 import java.util.ArrayList;
 import java.util.List;

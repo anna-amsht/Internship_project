@@ -1,23 +1,27 @@
-package factory;
+package com.innowise.skynet.factory;
 
-import models.Parts;
-import models.Robot;
-import models.RobotBuilder;
+import com.innowise.skynet.models.Parts;
+import com.innowise.skynet.models.Robot;
+import com.innowise.skynet.models.RobotBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class Faction extends Thread{
     private final String name;
-    private final List<Parts> sharedStorage;
+    private final Factory factory;
+    private final BlockingQueue<Parts> sharedStorage;
     private final RobotBuilder robotBuilder;
     private final List<Robot> robots = new ArrayList<>();
     private volatile boolean running = true;
     private static final int MAX_COUNT_PER_NIGHT = 5;
 
-    public Faction(String name, List<Parts> sharedStorage) {
+    public Faction(String name, BlockingQueue<Parts> sharedStorage, Factory factory) {
         this.name = name;
         this.sharedStorage = sharedStorage;
+        this.factory = factory;
         this.robotBuilder = new RobotBuilder(name);
     }
 
@@ -26,19 +30,16 @@ public class Faction extends Thread{
         while (running) {
             List<Parts> takenParts = new ArrayList<>();
 
-            synchronized (sharedStorage) {
-                while (sharedStorage.isEmpty() && running) {
-                    try {
-                        sharedStorage.wait();
-                    } catch (InterruptedException e) {
-                        System.out.println(e.getMessage());
+            for(int i = 0; i < MAX_COUNT_PER_NIGHT; i++) {
+                try {
+                    Parts parts = sharedStorage.poll(100, TimeUnit.MILLISECONDS);
+                    if (parts != null) {
+                        takenParts.add(parts);
                     }
                 }
-
-                int count = Math.min(MAX_COUNT_PER_NIGHT, sharedStorage.size());
-                for (int i = 0; i < count; i++) {
-                    takenParts.add(sharedStorage.remove(0));
-                }
+                    catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return;                }
             }
 
             for (Parts part : takenParts) {
@@ -51,14 +52,15 @@ public class Faction extends Thread{
                     robots.add(robot);
                 }
             }
+            if (factory != null) {
+                factory.finishDay();
+            }
         }
     }
 
     public void stopFaction() {
         running = false;
-        synchronized (sharedStorage) {
-            sharedStorage.notifyAll();
-        }
+        interrupt();
     }
 
     public List<Robot> getRobots() {
