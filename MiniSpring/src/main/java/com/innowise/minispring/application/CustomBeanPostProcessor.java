@@ -1,7 +1,7 @@
-package application;
+package com.innowise.minispring.application;
 
-import springframework.annotation.Component;
-import springframework.beanFactory.BeanPostProcessor;
+import com.innowise.minispring.springframework.annotation.Component;
+import com.innowise.minispring.springframework.beanFactory.BeanPostProcessor;
 
 @Component
 public class CustomBeanPostProcessor implements BeanPostProcessor {

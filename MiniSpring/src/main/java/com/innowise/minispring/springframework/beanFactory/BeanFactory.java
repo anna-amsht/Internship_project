@@ -1,7 +1,7 @@
-package springframework.beanFactory;
+package com.innowise.minispring.springframework.beanFactory;
 
-import springframework.annotation.Autowired;
-import springframework.annotation.Scope;
+import com.innowise.minispring.springframework.annotation.Autowired;
+import com.innowise.minispring.springframework.annotation.Scope;
 
 import java.lang.reflect.Field;
 import java.util.*;

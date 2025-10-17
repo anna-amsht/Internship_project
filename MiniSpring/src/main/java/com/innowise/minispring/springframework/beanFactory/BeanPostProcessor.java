@@ -1,4 +1,4 @@
-package springframework.beanFactory;
+package com.innowise.minispring.springframework.beanFactory;
 
 public interface BeanPostProcessor {
     Object postProcessBeforeInitialization(Object bean, String beanName);

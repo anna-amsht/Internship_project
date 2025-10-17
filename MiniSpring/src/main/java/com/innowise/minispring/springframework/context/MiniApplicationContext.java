@@ -1,7 +1,7 @@
-package springframework.context;
+package com.innowise.minispring.springframework.context;
 
-import springframework.annotation.Component;
-import springframework.beanFactory.BeanFactory;
+import com.innowise.minispring.springframework.annotation.Component;
+import com.innowise.minispring.springframework.beanFactory.BeanFactory;
 
 import java.io.File;
 import java.net.URL;

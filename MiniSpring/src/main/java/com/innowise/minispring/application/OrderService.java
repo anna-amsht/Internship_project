@@ -1,9 +1,8 @@
-package application;
+package com.innowise.minispring.application;
 
-import springframework.annotation.Autowired;
-import springframework.annotation.Component;
-import springframework.beanFactory.DisposableBean;
-import springframework.beanFactory.InitializingBean;
+import com.innowise.minispring.springframework.annotation.Autowired;
+import com.innowise.minispring.springframework.annotation.Component;
+import com.innowise.minispring.springframework.beanFactory.InitializingBean;
 
 @Component
 public class OrderService implements InitializingBean{
