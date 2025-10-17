@@ -1,3 +1,5 @@
+import com.innowise.salesanalysis.*;
+import com.innowise.salesanalysis.data.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.List;

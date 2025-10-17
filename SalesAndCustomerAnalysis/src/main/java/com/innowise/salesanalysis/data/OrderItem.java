@@ -1,3 +1,5 @@
+package com.innowise.salesanalysis.data;
+
 public class OrderItem {
     private String productName;
     private int quantity;

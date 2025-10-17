@@ -1,3 +1,5 @@
+package com.innowise.salesanalysis.data;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -63,7 +65,7 @@ public class Order {
 
     @Override
     public String toString() {
-        return "Order{" +
+        return "com.innowise.salesanalysis.data.Order{" +
                 "orderId='" + orderId + '\'' +
                 ", orderDate=" + orderDate +
                 ", customer=" + customer +

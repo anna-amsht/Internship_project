@@ -1,3 +1,10 @@
+package com.innowise.salesanalysis;
+
+import com.innowise.salesanalysis.data.Customer;
+import com.innowise.salesanalysis.data.Order;
+import com.innowise.salesanalysis.data.OrderItem;
+import com.innowise.salesanalysis.data.OrderStatus;
+
 import java.util.*;
 import java.util.stream.Collectors;
 

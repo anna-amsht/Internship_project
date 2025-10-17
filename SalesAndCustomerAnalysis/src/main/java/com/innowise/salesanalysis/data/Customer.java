@@ -1,4 +1,5 @@
-import javax.swing.text.DateFormatter;
+package com.innowise.salesanalysis.data;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -72,7 +73,7 @@ public class Customer {
 
     @Override
     public String toString() {
-        return "Customer{" +
+        return "com.innowise.salesanalysis.data.Customer{" +
                 "name='" + name + '\'' +
                 ", registeredAt=" + registeredAt +
                 ", age=" + age +
