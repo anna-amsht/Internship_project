@@ -15,7 +15,7 @@ public class Main {
         BlockingQueue<Parts> sharedStorage = new LinkedBlockingQueue<Parts>();
 
         PartsFactory partsFactory = new PartsFactory();
-        Factory factory = new Factory(sharedStorage, partsFactory);
+        Factory factory = new Factory(sharedStorage);
 
         Faction worldFaction = new Faction("World", sharedStorage, factory);
         Faction wednesdayFaction = new Faction("Wednesday", sharedStorage, factory);

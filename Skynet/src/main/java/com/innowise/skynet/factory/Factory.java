@@ -10,21 +10,23 @@ import java.util.concurrent.CountDownLatch;
 
 public class Factory extends Thread{
     private final BlockingQueue<Parts> sharedStorage;
-    private final PartsFactory partsFactory;
     private volatile boolean running = true;
     private CountDownLatch dayLatch;
+    private final Object lock = new Object();
 
-    public Factory(BlockingQueue<Parts> sharedStorage, PartsFactory partsFactory) {
+    public Factory(BlockingQueue<Parts> sharedStorage) {
         this.sharedStorage = sharedStorage;
-        this.partsFactory = partsFactory;
     }
 
     @Override
     public void run() {
         int day = 1;
         while (running && day <= 100) {
-            List<Parts> newParts = partsFactory.generateParts();
-            dayLatch = new CountDownLatch(2);
+
+            synchronized (lock) {
+                dayLatch = new CountDownLatch(2);
+            }
+            List<Parts> newParts = PartsFactory.generateParts();
 
             for (Parts p : newParts) {
                 try {
@@ -33,23 +35,18 @@ public class Factory extends Thread{
                   throw new RuntimeException(e);
                 }
             }
-
             System.out.println("Factory finished day " + day);
+            CountDownLatch currentLatch;
+            synchronized (lock) {
+                currentLatch = dayLatch;
+            }
             try {
-                dayLatch.await();
+                currentLatch.await();
             } catch (InterruptedException e) {
               throw new RuntimeException(e);
             }
             day++;
 
-            if (running && day <= 100) {
-
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
         }
     }
 
@@ -60,6 +57,12 @@ public class Factory extends Thread{
     public void finishDay() {
         if (dayLatch != null) {
             dayLatch.countDown();
+        }
+    }
+
+    public CountDownLatch getCurrentLatch() {
+        synchronized (lock) {
+            return dayLatch;
         }
     }
 }

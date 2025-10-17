@@ -7,6 +7,7 @@ import com.innowise.skynet.models.RobotBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class Faction extends Thread{
@@ -17,6 +18,7 @@ public class Faction extends Thread{
     private final List<Robot> robots = new ArrayList<>();
     private volatile boolean running = true;
     private static final int MAX_COUNT_PER_NIGHT = 5;
+    private CountDownLatch lastProcessedLatch = null;
 
     public Faction(String name, BlockingQueue<Parts> sharedStorage, Factory factory) {
         this.name = name;
@@ -28,18 +30,30 @@ public class Faction extends Thread{
     @Override
     public void run() {
         while (running) {
+
+            CountDownLatch currentLatch = factory.getCurrentLatch();
+            if (currentLatch == null || currentLatch == lastProcessedLatch) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+                continue;
+            }
+
             List<Parts> takenParts = new ArrayList<>();
 
-            for(int i = 0; i < MAX_COUNT_PER_NIGHT; i++) {
+            for (int i = 0; i < MAX_COUNT_PER_NIGHT; i++) {
                 try {
                     Parts parts = sharedStorage.poll(100, TimeUnit.MILLISECONDS);
                     if (parts != null) {
                         takenParts.add(parts);
                     }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
                 }
-                    catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        return;                }
             }
 
             for (Parts part : takenParts) {
@@ -52,6 +66,10 @@ public class Faction extends Thread{
                     robots.add(robot);
                 }
             }
+
+            System.out.println(name + " finished work for the day");
+
+            lastProcessedLatch = currentLatch;
             if (factory != null) {
                 factory.finishDay();
             }
