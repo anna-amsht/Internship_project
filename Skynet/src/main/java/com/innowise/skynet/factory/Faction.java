@@ -38,7 +38,6 @@ public class Faction extends Thread{
                 return;
             }
 
-
             List<Parts> takenParts = new ArrayList<>();
 
             for (int i = 0; i < MAX_COUNT_PER_NIGHT; i++) {

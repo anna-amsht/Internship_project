@@ -24,6 +24,16 @@ public class Factory extends Thread{
         int day = 1;
         while (running && day <= 100) {
 
+            List<Parts> newParts = PartsFactory.generateParts();
+
+            for (Parts p : newParts) {
+                try {
+                    sharedStorage.put(p);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
             try {
                 this.day.await();
             } catch (InterruptedException e) {
@@ -32,15 +42,6 @@ public class Factory extends Thread{
                return;
             }
 
-            List<Parts> newParts = PartsFactory.generateParts();
-
-            for (Parts p : newParts) {
-                try {
-                  sharedStorage.put(p);
-                } catch (InterruptedException e) {
-                  throw new RuntimeException(e);
-                }
-            }
             System.out.println("Factory finished day " + day);
 
             try {
