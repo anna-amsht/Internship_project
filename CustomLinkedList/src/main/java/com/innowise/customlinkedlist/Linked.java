@@ -1,3 +1,4 @@
+package com.innowise.customlinkedlist;
 
 public interface Linked<E> extends Iterable<E>{
     int size();

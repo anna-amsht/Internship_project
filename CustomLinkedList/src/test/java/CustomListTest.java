@@ -1,3 +1,5 @@
+import com.innowise.customlinkedlist.CustomList;
+import com.innowise.customlinkedlist.Linked;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -1,5 +1,7 @@
+package com.innowise.customlinkedlist;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -28,9 +30,19 @@ public class CustomList<E> implements Linked<E>{
             addLast(el);
         }
         else {
-            Node<E> current = head;
-            for (int i = 0; i < index; i++) {
-                current = current.next;
+            Node<E> current;
+            if(index > size/2){
+                current = tail;
+
+                for (int i = size - 1; index < i; i--) {
+                    current = current.prev;
+                }
+            }
+            else {
+                current = head;
+                for (int i = 0; i < index; i++) {
+                    current = current.next;
+                }
             }
             Node<E> prevNode = current.prev;
             Node<E> node = new Node<>(prevNode, el, current);
@@ -72,11 +84,23 @@ public class CustomList<E> implements Linked<E>{
     public E get(int index) {
         if (head == null) throw new NoSuchElementException("List is empty");
         if (index < 0 || index >= size) throw new IndexOutOfBoundsException("Index is out of bounds");
-        Node<E> current = head;
-        for( int i = 0; i < index; i++ ) {
-            current= current.next;
+        Node<E> current;
+
+        if (index > size / 2){
+            current = tail;
+
+            for( int i = size - 1 ; index < i; i-- ){
+                current = current.prev;
+            }
+            return current.getValue();
         }
-        return current.getValue();
+        else {
+            current = head;
+            for( int i = 0; i < index; i++ ){
+                current = current.next;
+            }
+            return current.getValue();
+        }
     }
 
     @Override
@@ -104,15 +128,29 @@ public class CustomList<E> implements Linked<E>{
         if(index == size - 1) {
             return removeLast();
         }
-        Node<E> current = head;
-        for(int i = 0; i < index; i++) {
-            current = current.next;
+        Node<E> current;
+        if (index > size / 2){
+            current = tail;
+            for( int i = size - 1 ; index < i; i-- ){
+                current = current.prev;
+            }
+            removed = current;
+            current.prev.next = current.next;
+            current.next.prev = current.prev;
+            size--;
+            return removed.getValue();
         }
-        removed = current;
+        else {
+            current = head;
+            for( int i = 0; i < index; i++ ){
+                current = current.next;
+            }
+            removed = current;
         current.prev.next = current.next;
         current.next.prev = current.prev;
         size--;
         return removed.getValue();
+        }
     }
 
     @Override
